@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Admin Login</title>
+</head>
+<body>
+  <h1>Debug: Test Admin Login</h1>
+
+  <button id="loginBtn">Login as Admin</button>
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: "admin@jobportal.com",
+            password: "admin123"
+          })
+        });
+
+        const text = await res.text();
+        document.getElementById("output").textContent =
+          "Status: " + res.status + "\n\nResponse:\n" + text;
+      } catch (err) {
+        document.getElementById("output").textContent = "Error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>

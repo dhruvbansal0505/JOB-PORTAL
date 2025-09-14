@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main class="form-container">
+    <h2>Create HR Account</h2>
+    <form id="createHrForm">
+      <input type="text" id="hrUsername" placeholder="HR Email" required>
+      <input type="password" id="hrPassword" placeholder="HR Password" required>
+      <button type="submit">Create HR</button>
+    </form>
+    <p id="adminMsg"></p>
+  </main>
+
+  <script>
+    document.getElementById("createHrForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const username = document.getElementById("hrUsername").value;
+      const password = document.getElementById("hrPassword").value;
+
+      const res = await fetch("/api/admin/create-hr", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ username, password })
+      });
+
+      document.getElementById("adminMsg").textContent = await res.text();
+    });
+  </script>
+</body>
+</html>

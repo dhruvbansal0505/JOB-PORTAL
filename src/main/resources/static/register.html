@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Candidate Registration</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <main class="form-container">
+    <h2>Register as Candidate</h2>
+    <form id="registerForm" enctype="multipart/form-data">
+      <input type="email" name="username" id="username" placeholder="Email (Username)" required>
+      <input type="password" name="password" id="password" placeholder="Password" required>
+      
+      <input type="text" name="fullName" id="fullName" placeholder="Full Name" required>
+      <input type="text" name="qualification" id="qualification" placeholder="Qualification" required>
+      <input type="text" name="skills" id="skills" placeholder="Skills (comma separated)" required>
+      <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" required>
+
+      <button type="submit">Register</button>
+    </form>
+    <p id="regMsg"></p>
+  </main>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const form = document.getElementById("registerForm");
+      const formData = new FormData(form);
+
+      // 1. Create candidate account
+      let res = await fetch("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          username: formData.get("username"),
+          password: formData.get("password")
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!res.ok) {
+        document.getElementById("regMsg").textContent = "Error creating account";
+        return;
+      }
+
+      // 2. Login to get token
+      res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.get("username"),
+          password: formData.get("password")
+        })
+      });
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+
+      // 3. Upload profile with resume
+      const profileData = new FormData();
+      profileData.append("fullName", formData.get("fullName"));
+      profileData.append("qualification", formData.get("qualification"));
+      profileData.append("skills", formData.get("skills"));
+      profileData.append("resume", formData.get("resume"));
+
+      res = await fetch("/api/candidate/profile", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + data.token },
+        body: profileData
+      });
+
+      if (res.ok) {
+        document.getElementById("regMsg").textContent = "Registration successful!";
+        setTimeout(() => window.location.href = "candidate.html", 1000);
+      } else {
+        document.getElementById("regMsg").textContent = "Error saving profile";
+      }
+    });
+  </script>
+</body>
+</html>

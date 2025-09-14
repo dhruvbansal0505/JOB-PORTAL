@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Job Portal - Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Welcome to Job Portal</h1>
+    <nav>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Find your dream job today!</h2>
+      <p>
+        Browse job postings, apply as a candidate, or post jobs as an HR.  
+        Admins can manage HR accounts.  
+      </p>
+    </section>
+
+    <section>
+      <h2>Available Jobs</h2>
+      <div id="jobs"></div>
+    </section>
+  </main>
+
+  <script>
+    // Load public job list (visible to all)
+    fetch("/api/jobs")
+      .then(res => res.json())
+      .then(jobs => {
+        const container = document.getElementById("jobs");
+        container.innerHTML = "";
+        jobs.forEach(job => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${job.title}</h3>
+            <p>${job.description}</p>
+            <small>Skills: ${job.skills}</small>
+          `;
+          container.appendChild(card);
+        });
+      });
+  </script>
+</body>
+</html>

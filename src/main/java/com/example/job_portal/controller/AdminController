@@ -1,0 +1,28 @@
+package com.example.job_portal.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.job_portal.dto.CreateHrRequest;
+import com.example.job_portal.entity.User;
+import com.example.job_portal.service.UserService;
+
+@RestController
+@RequestMapping("/api/admin")
+public class AdminController {
+
+    @Autowired
+    private UserService userService;
+
+    // Admin creates HR
+    @PostMapping("/create-hr")
+    public ResponseEntity<?> createHr(@RequestBody CreateHrRequest req) {
+        // check if user exists
+        if (userService.findByUsername(req.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        User hr = userService.createHr(req.getUsername(), req.getPassword());
+        return ResponseEntity.ok("HR created: " + hr.getUsername());
+    }
+}

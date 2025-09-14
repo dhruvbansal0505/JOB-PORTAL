@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Candidate Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Candidate Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <section>
+      <h2>Available Jobs</h2>
+      <div id="jobs"></div>
+    </section>
+
+    <section>
+      <h2>My Applications</h2>
+      <div id="applications"></div>
+    </section>
+  </main>
+
+  <script>
+    async function loadJobs() {
+      const res = await fetch("/api/jobs");
+      const jobs = await res.json();
+      const container = document.getElementById("jobs");
+      container.innerHTML = "";
+      jobs.forEach(job => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${job.title}</h3>
+          <p>${job.description}</p>
+          <small>Skills: ${job.skills}</small><br>
+          <textarea id="note-${job.id}" placeholder="Cover note"></textarea><br>
+          <button onclick="applyJob(${job.id})">Apply</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function applyJob(jobId) {
+      const note = document.getElementById("note-" + jobId).value;
+      const res = await fetch("/api/candidate/apply", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ jobId, coverNote: note })
+      });
+      if (res.ok) {
+        alert("Applied successfully!");
+        loadApplications();
+      } else {
+        alert("Error applying");
+      }
+    }
+
+    async function loadApplications() {
+      const res = await fetch("/api/candidate/applications", { headers: authHeaders() });
+      const apps = await res.json();
+      const container = document.getElementById("applications");
+      container.innerHTML = "";
+      apps.forEach(app => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${app.job.title}</h3>
+          <p>Status: <b>${app.status}</b></p>
+          <small>Applied on: ${new Date(app.appliedAt).toLocaleString()}</small><br>
+          ${app.coverNote ? `<p>Note: ${app.coverNote}</p>` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    loadJobs();
+    loadApplications();
+  </script>
+</body>
+</html>

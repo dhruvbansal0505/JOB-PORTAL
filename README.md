@@ -150,7 +150,3 @@ new BCryptPasswordEncoder().encode("admin123");
 
 ---
 
- 
-
-Do you also want me to include **example screenshots** (index page, login, dashboards) placeholders in the README so it looks more professional on GitHub?
-```
